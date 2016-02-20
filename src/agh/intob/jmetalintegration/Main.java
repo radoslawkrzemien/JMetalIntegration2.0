@@ -2,58 +2,81 @@ package agh.intob.jmetalintegration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
+import agh.intob.jmetalintegration.jmetal.SBXSolverCrossover;
+import agh.intob.jmetalintegration.jmetal.SolverPolynomialMutation;
+import agh.intob.jmetalintegration.jmetal.SolverProblem;
 import agh.intob.jmetalintegration.utils.PumpLocation;
 import agh.intob.jmetalintegration.utils.SolverRunner;
 import agh.intob.jmetalintegration.utils.SuctionDetails;
+import jmetal.core.Problem;
+import jmetal.core.SolutionSet;
+import jmetal.metaheuristics.nsgaII.NSGAII;
+import jmetal.operators.crossover.Crossover;
+import jmetal.operators.crossover.CrossoverFactory;
+import jmetal.operators.mutation.Mutation;
+import jmetal.operators.mutation.MutationFactory;
+import jmetal.operators.selection.Selection;
+import jmetal.operators.selection.SelectionFactory;
+import jmetal.qualityIndicator.QualityIndicator;
+import jmetal.util.Configuration;
+import jmetal.util.JMException;
 
 public class Main {
+	public static Logger logger_;
+	public static FileHandler fileHandler_;
 
-	public static void main(String[] args){
-		int nrOfIterations = 10;
-		int nrOfPumps = 1;
-		PumpLocation[] pumps = new PumpLocation[nrOfPumps];
-		for(int i = 0 ; i < nrOfPumps ; i++){
-			pumps[i] = new PumpLocation(0.5, 0.5, 0.5);
+	public static void main(String[] args) throws JMException, SecurityException, IOException, ClassNotFoundException{
+		logger_ = Configuration.logger_;
+		fileHandler_ = new FileHandler("NSGAII_main.log");
+		logger_.addHandler(fileHandler_);
+		QualityIndicator indicators = null;
+		Object problem;
+		Object[] initTime;
+		problem = new SolverProblem("Solver", 15);
+
+		NSGAII algorithm = new NSGAII((Problem)problem);
+		algorithm.setInputParameter("populationSize", Integer.valueOf(4));
+		algorithm.setInputParameter("maxEvaluations", Integer.valueOf(10));
+		HashMap parameters = new HashMap();
+		parameters.put("probability", Double.valueOf(0.9D));
+		parameters.put("distributionIndex", Double.valueOf(20.0D));
+//		Crossover crossover = CrossoverFactory.getCrossoverOperator("SBXCrossover", parameters);
+		Crossover crossover = new SBXSolverCrossover(parameters);
+		parameters = new HashMap();
+		parameters.put("probability", Double.valueOf(1.0D / (double)((Problem)problem).getNumberOfVariables()));
+		parameters.put("distributionIndex", Double.valueOf(20.0D));
+//		Mutation mutation = MutationFactory.getMutationOperator("PolynomialMutation", parameters);
+		Mutation mutation = new SolverPolynomialMutation(parameters);
+		parameters = null;
+		Selection selection = SelectionFactory.getSelectionOperator("BinaryTournament2", parameters);
+		algorithm.addOperator("crossover", crossover);
+		algorithm.addOperator("mutation", mutation);
+		algorithm.addOperator("selection", selection);
+		algorithm.setInputParameter("indicators", indicators);
+		long initTime1 = System.currentTimeMillis();
+		SolutionSet population = algorithm.execute();
+		long estimatedTime = System.currentTimeMillis() - initTime1;
+		logger_.info("Total execution time: " + estimatedTime + "ms");
+		logger_.info("Variables values have been writen to file VAR");
+		population.printVariablesToFile("VAR");
+		logger_.info("Objectives values have been writen to file FUN");
+		population.printObjectivesToFile("FUN");
+		if(indicators != null) {
+			logger_.info("Quality indicators");
+			logger_.info("Hypervolume: " + indicators.getHypervolume(population));
+			logger_.info("GD         : " + indicators.getGD(population));
+			logger_.info("IGD        : " + indicators.getIGD(population));
+			logger_.info("Spread     : " + indicators.getSpread(population));
+			logger_.info("Epsilon    : " + indicators.getEpsilon(population));
+			int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
+			logger_.info("Speed      : " + evaluations + " evaluations");
 		}
-		int nrOfSuctions = 1;
-		SuctionDetails[] suctions = new SuctionDetails[nrOfSuctions];
-		for(int i = 0 ; i < nrOfSuctions ; i++){
-			suctions[i] = new SuctionDetails(0.1, 0.2, 0.3);
-		}
-		List<Double> energies = new LinkedList<>();
-		double drain = 0;
-		double pollution = 0;
-		try {
-			BufferedReader stdInput = SolverRunner.runSolver(nrOfIterations, pumps, suctions);
-			String output = null;
-			while((output = stdInput.readLine()) != null) {
-				if(output.startsWith("Iter")){
-					output = stdInput.readLine();
-					output = output.replaceFirst("Energy:[ ]*", "");
-					energies.add(Double.parseDouble(output));
-				}
-				else if (output.startsWith("Drained")){
-					output = output.replaceFirst("Drained:[ ]*", "");
-					drain = Double.parseDouble(output);
-				}
-				else if(output.startsWith("Pollution")){
-					output = output.replaceFirst("Pollution:[ ]*", "");
-					pollution = Double.parseDouble(output);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		int i = 1;
-		for(Double d : energies){
-			System.out.println("Energy " + i + ": " + d);
-			i++;
-		}
-		System.out.println("Drain: " + drain);
-		System.out.println("Pollution: " + pollution);
 	}
 
 }
