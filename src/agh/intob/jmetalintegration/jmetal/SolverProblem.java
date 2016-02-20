@@ -5,14 +5,8 @@ import agh.intob.jmetalintegration.utils.SolverRunner;
 import agh.intob.jmetalintegration.utils.SuctionDetails;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
-import jmetal.core.SolutionType;
 import jmetal.core.Variable;
-import jmetal.encodings.solutionType.ArrayRealSolutionType;
-import jmetal.encodings.solutionType.BinaryRealSolutionType;
-import jmetal.encodings.solutionType.RealSolutionType;
-import jmetal.encodings.variable.Int;
 import jmetal.util.JMException;
-import jmetal.util.wrapper.XReal;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,14 +14,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Doktor on 2016-02-20.
+ * Extended standard JMetal Problem class, especially for solver problem
  */
 public class SolverProblem extends Problem {
 
-    public SolverProblem(String solutionType) {
-        this(solutionType, Integer.valueOf(15));
-    }
-
+    /**
+     * Constructor
+     * @param solutionType - solver solution type
+     * @param numberOfVariables - number of variables constructing solver solution
+     */
     public SolverProblem(String solutionType, Integer numberOfVariables) {
         this.numberOfVariables_ = numberOfVariables.intValue();
         this.numberOfObjectives_ = 2;
@@ -43,8 +38,14 @@ public class SolverProblem extends Problem {
         }
     }
 
+    /**
+     * Overriden method evaluating given solution, evaluation is better if drain is bigger and pollution is smaller
+     * @param solution - solution to be evaluated
+     * @throws JMException
+     */
     @Override
     public void evaluate(Solution solution) throws JMException {
+        //variables preparation
         Variable[] variables = solution.getDecisionVariables();
         double[] fx = new double[2];
         int nrOfIterations = (int)variables[0].getValue();
@@ -66,6 +67,8 @@ public class SolverProblem extends Problem {
             int indZ = indSucDet + i*3;
             suctions[i] = new SuctionDetails(variables[indX].getValue(), variables[indY].getValue(), variables[indZ].getValue());
         }
+
+        //solver execution and output reading
         List<Double> energies = new LinkedList<>();
         double drain = 0;
         double pollution = 0;
@@ -91,10 +94,11 @@ public class SolverProblem extends Problem {
             e.printStackTrace();
         }
 
+        //objective preparation
         fx[0] = drain;
-
         fx[1] = 1.0 - pollution;
 
+        //objective setting
         solution.setObjective(0, fx[0]);
         solution.setObjective(1, fx[1]);
     }

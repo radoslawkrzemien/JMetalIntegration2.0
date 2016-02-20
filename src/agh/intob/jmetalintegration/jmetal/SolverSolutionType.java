@@ -7,17 +7,25 @@ import jmetal.encodings.variable.Int;
 import jmetal.encodings.variable.Real;
 
 /**
- * Created by Doktor on 2016-02-20.
+ * Class extending standard JMetal SolutionType class, especially for solver problem
  */
 public class SolverSolutionType extends SolutionType {
 
+    /**
+     * Constructor
+     * @param problem - solver problem
+     */
     public SolverSolutionType(Problem problem){
         super(problem);
     }
 
+    /**
+     * Overriden method creating variables of a new Solution
+     * @return array of new variables
+     * @throws ClassNotFoundException
+     */
     @Override
     public Variable[] createVariables() throws ClassNotFoundException {
-//        int nrOfVariables = this.problem_.getNumberOfVariables();
         int nrOfVariables = 15;
         Variable[] variables = new Variable[nrOfVariables];
         variables[0] = new Int(1,100);

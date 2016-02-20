@@ -1,11 +1,20 @@
 package agh.intob.jmetalintegration.utils;
 
+/**
+ * Class for storing information about pump localization
+ */
 public class PumpLocation {
 	
 	private double x;
 	private double y;
 	private double z;
-	
+
+	/**
+	 * Constructor
+	 * @param x - x coordinate
+	 * @param y - y coordinate
+     * @param z - z coordinate
+     */
 	public PumpLocation(double x, double y, double z) {
 		super();
 		this.x = x;
@@ -13,32 +22,28 @@ public class PumpLocation {
 		this.z = z;
 	}
 
-	public PumpLocation() {
-		super();
-	}
-
+	/**
+	 * Gets pump x coordinate
+	 * @return x coordinate
+     */
 	public double getX() {
 		return x;
 	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
-
+	/**
+	 * Gets pump y coordinate
+	 * @return y coordinate
+	 */
 	public double getY() {
 		return y;
 	}
 
-	public void setY(double y) {
-		this.y = y;
-	}
-
+	/**
+	 * Gets pump z coordinate
+	 * @return z coordinate
+	 */
 	public double getZ() {
 		return z;
-	}
-
-	public void setZ(double z) {
-		this.z = z;
 	}
 	
 }

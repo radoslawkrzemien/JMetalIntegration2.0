@@ -1,11 +1,20 @@
 package agh.intob.jmetalintegration.utils;
 
+/**
+ * Class containing data about suction specification
+ */
 public class SuctionDetails {
 	
 	private double x;
 	private double y;
 	private double z;
 
+	/**
+	 * Constructor
+	 * @param x - x coordinate
+	 * @param y - y coordinate
+     * @param z - z coordinate
+     */
 	public SuctionDetails(double x, double y, double z) {
 		super();
 		this.x = x;
@@ -13,32 +22,28 @@ public class SuctionDetails {
 		this.z = z;
 	}
 
-	public SuctionDetails() {
-		super();
-	}
-
+	/**
+	 * Gets suction x coordinate
+	 * @return x coordinate
+     */
 	public double getX() {
 		return x;
 	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
-
+	/**
+	 * Gets suction y coordinate
+	 * @return y coordinate
+	 */
 	public double getY() {
 		return y;
 	}
 
-	public void setY(double y) {
-		this.y = y;
-	}
-
+	/**
+	 * Gets suction z coordinate
+	 * @return z coordinate
+	 */
 	public double getZ() {
 		return z;
-	}
-
-	public void setZ(double z) {
-		this.z = z;
 	}
 	
 }

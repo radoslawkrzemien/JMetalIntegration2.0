@@ -2,28 +2,27 @@ package agh.intob.jmetalintegration.jmetal;
 
 import jmetal.core.Solution;
 import jmetal.core.Variable;
-import jmetal.encodings.solutionType.ArrayRealSolutionType;
-import jmetal.encodings.solutionType.RealSolutionType;
 import jmetal.operators.mutation.PolynomialMutation;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
 import jmetal.util.PseudoRandom;
-import jmetal.util.wrapper.XReal;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by Doktor on 2016-02-20.
+ * Extended standard JMetal PolynomialMutation class, especially for solver problem
  */
 public class SolverPolynomialMutation extends PolynomialMutation {
-    private static final double ETA_M_DEFAULT_ = 20.0D;
-    private final double eta_m_ = 20.0D;
     private Double mutationProbability_ = null;
     private Double distributionIndex_ = Double.valueOf(20.0D);
     private static final List VALID_TYPES = Arrays.asList(new Class[]{SolverSolutionType.class});
 
+    /**
+     * Constructor
+     * @param parameters - operator parameters
+     */
     public SolverPolynomialMutation(HashMap<String, Object> parameters) {
         super(parameters);
         if(parameters.get("probability") != null) {
@@ -35,6 +34,12 @@ public class SolverPolynomialMutation extends PolynomialMutation {
         }
     }
 
+    /**
+     * Overriden method from mutation operator, handles SolverSolutionType
+     * @param object - solution to mutate
+     * @return mutated solution
+     * @throws JMException
+     */
     @Override
     public Object execute(Object object) throws JMException {
         Solution solution = (Solution)object;
@@ -49,17 +54,19 @@ public class SolverPolynomialMutation extends PolynomialMutation {
         }
     }
 
+    /**
+     * Overriden method from mutation operator, handles variablees from SolverSolutionType
+     * @param probability - probability of mutation
+     * @param solution - solution to be mutated
+     * @throws JMException
+     */
     @Override
     public void doMutation(double probability, Solution solution) throws JMException {
-//        XReal x = new XReal(solution);
         Variable[] variables = solution.getDecisionVariables();
         for(int var = 0; var < solution.numberOfVariables(); ++var) {
             if(PseudoRandom.randDouble() <= probability) {
-//                double y = x.getValue(var);
                 double y = variables[var].getValue();
-//                double yl = x.getLowerBound(var);
                 double yl = variables[var].getLowerBound();
-//                double yu = x.getUpperBound(var);
                 double yu = variables[var].getUpperBound();
                 double delta1 = (y - yl) / (yu - yl);
                 double delta2 = (yu - y) / (yu - yl);
@@ -87,7 +94,6 @@ public class SolverPolynomialMutation extends PolynomialMutation {
                     y = yu;
                 }
 
-//                x.setValue(var, y);
                 variables[var].setValue(y);
                 solution.setDecisionVariables(variables);
             }

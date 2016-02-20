@@ -4,12 +4,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Helper class for running solver with arguments
+ */
 public class SolverRunner {
-	
+
+	/**
+	 * Runs solver with given arguments
+	 * @param nrOfIterations - number of iterations for which solver runs
+	 * @param pumps - data about pump locations
+	 * @param suctions - data about suction specifications
+     * @return BufferedReader object for retrieving solver output
+     */
 	public static BufferedReader runSolver(int nrOfIterations, PumpLocation[] pumps, SuctionDetails[] suctions){
+		//variables initialization
 		int nrOfPumps = pumps.length;
 		int nrOfSuctions = suctions.length;
 		String[] cmd = new String[4 + 3*nrOfPumps  + 3*nrOfSuctions ];
+
+		//command construction
 		cmd[0] = ".\\ads";
 		cmd[1] = String.valueOf(nrOfIterations);
 		cmd[2] = String.valueOf(nrOfPumps);
@@ -30,18 +43,22 @@ public class SolverRunner {
 			cmd[i+1] = String.valueOf(suctions[j].getY());
 			cmd[i+2] = String.valueOf(suctions[j].getZ());
 		}
+
+		//solver execution
 		Process process;
-		BufferedReader stdInput = null;
+		BufferedReader stdOutput = null;
 		try {
 			process = Runtime.getRuntime().exec(cmd);
-			stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			stdOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			process.waitFor();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return stdInput;
+
+		//output returning
+		return stdOutput;
 	}
 
 }
